@@ -14,7 +14,7 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+# *.dll
 
 # Fortran module files
 *.mod
@@ -24,9 +24,23 @@
 *.lai
 *.la
 *.a
-*.lib
+# *.lib
 
 # Executables
 *.exe
 *.out
 *.app
+
+# User Defined
+.vs
+*.user
+*.log
+*.recipe
+*.FileListAbsolute.txt
+*.gitignore
+*.ilk
+*.pdb
+*.idb
+*.tlog
+*.iobj
+*.ipdb
