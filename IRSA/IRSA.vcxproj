@@ -149,6 +149,9 @@
   <ItemGroup>
     <ClCompile Include="IRSA.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IRSA.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

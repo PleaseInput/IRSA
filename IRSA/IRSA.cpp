@@ -1,14 +1,6 @@
 // IRSA.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
-#include <iostream>
-#include "external include/cryptopp850/header/osrng.h"
-#include "external include/cryptopp850/header/rsa.h"
-#include "external include/cryptopp850/header/aes.h"
-#include "external include/cryptopp850/header/base64.h"
-
-std::string Encrypt(const std::string, CryptoPP::RSA::PublicKey);
-std::string Decrypt(const std::string, CryptoPP::RSA::PrivateKey);
+#include "IRSA.h"
 
 int main()
 {
@@ -35,25 +27,15 @@ int main()
     // Encryption
     const std::string plain = "Test string";
     std::string cipher = Encrypt(plain, publicKey);
+
     std::string cipherBase64Enc;
-    CryptoPP::StringSource ssEncrypto(
-        cipher.c_str(),
-        true,
-        new CryptoPP::Base64Encoder(
-            new CryptoPP::StringSink(cipherBase64Enc)
-        )
-    );
+    cipherBase64Enc = string2hex(cipher);
     std::cout << "cipher: " << cipherBase64Enc << std::endl;
 
     // Decryption
     std::string cipherBase64Dec;
-    CryptoPP::StringSource ssDecrypto(
-        cipherBase64Enc.c_str(),
-        true,
-        new CryptoPP::Base64Decoder(
-            new CryptoPP::StringSink(cipherBase64Dec)
-        )
-    );
+    cipherBase64Dec = hex2String(cipherBase64Enc);
+
     std::string recoverd = Decrypt(cipherBase64Dec, privateKey);
     std::cout << "recoverd: " << recoverd << std::endl;
 
@@ -82,6 +64,63 @@ std::string Decrypt(const std::string cipher, CryptoPP::RSA::PrivateKey privateK
     CryptoPP::StringSource stringSourceEncrypt(cipher, true, pPK_DecryptorFilter);
 
     return recoverd;
+}
+
+std::string string2hex(const std::string& str)
+{
+    static const char str2Hex[] = "0123456789ABCDEF";
+
+    std::string hex;
+    hex.reserve(str.size() * 2);
+
+    for (size_t index = 0; index < str.size(); index++)
+    {
+        const char highValue = (str[index] >> 4) & 0x0F;
+        hex.push_back(str2Hex[highValue]);
+
+        const char lowValue = str[index] & 0x0F;
+        hex.push_back(str2Hex[lowValue]);
+    }
+
+    return hex;
+}
+
+std::string hex2String(const std::string& hex)
+{
+    const size_t hexSize = hex.size();
+    if (hexSize & 1)
+    {
+        throw std::invalid_argument("should be even length");
+    }
+
+    std::function<int(char)> convert2HexInt = [](const char c) {
+        if ('0' <= c && c <= '9')
+        {
+            return c - '0';
+        }
+        else if ('a' <= c && c <= 'f')
+        {
+            return c - 'a' + 10;
+        }
+        else if ('A' <= c && c <= 'F')
+        {
+            return c - 'A' + 10;
+        }
+        else
+        {
+            throw std::invalid_argument("invalid char");
+        }
+    };
+
+    std::string str;
+    str.reserve(hexSize / 2);
+    for (size_t index = 0; index < hexSize; index += 2)
+    {
+        const int highValue = convert2HexInt(hex[index + 0]) << 4;
+        const int lowValue = convert2HexInt(hex[index + 1]);
+        str.push_back(highValue | lowValue);
+    }
+    return str;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
